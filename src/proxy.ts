@@ -1,56 +1,96 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+import { jwtVerify } from "jose";
 
-export function proxy(request: NextRequest) {
+async function verifyToken(token: string) {
+  try {
+    const encoder = new TextEncoder();
+    const { payload } = await jwtVerify(
+      token,
+      encoder.encode(process.env.JWT_ACCESS_SECRET),
+    );
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
   const isLoginPage = pathname === "/login";
 
-  const accessToken = request.cookies.get("accessToken")?.value;
-  let decodedToken: jwt.JwtPayload | null = null;
+  let accessToken = request.cookies.get("accessToken")?.value;
+  const refreshToken = request.cookies.get("refreshToken")?.value;
 
-  if (accessToken && process.env.JWT_ACCESS_SECRET) {
+  let decodedToken = null;
+
+  if (accessToken) {
+    decodedToken = await verifyToken(accessToken);
+  }
+
+  if (!decodedToken && refreshToken) {
     try {
-      decodedToken = jwt.verify(
-        accessToken,
-        process.env.JWT_ACCESS_SECRET,
-      ) as jwt.JwtPayload;
+      const refreshUrl = new URL("/api/refresh", request.url);
+      const refreshResponse = await fetch(refreshUrl, {
+        method: "POST",
+        headers: {
+          cookie: request.headers.get("cookie") || "",
+        },
+      });
+
+      if (refreshResponse.ok) {
+        const setCookieHeader = refreshResponse.headers.get("set-cookie");
+        if (setCookieHeader) {
+          const newTokenMatch = setCookieHeader.match(/accessToken=([^;]+)/);
+          if (newTokenMatch) {
+            accessToken = newTokenMatch[1];
+            decodedToken = await verifyToken(accessToken);
+          }
+        }
+      }
     } catch {
-      decodedToken = null;
+      console.error("Silent refresh failed in middleware");
     }
   }
 
   const isAuthenticated = !!decodedToken;
   const userRole = decodedToken?.role;
 
+  let response = NextResponse.next();
+
   if (isLoginPage && isAuthenticated) {
-    return NextResponse.redirect(
+    response = NextResponse.redirect(
       new URL(userRole === "admin" ? "/admin" : "/employee", request.url),
     );
-  }
-
-  if (!isLoginPage && !isAuthenticated) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  if (isAuthenticated) {
+  } else if (!isLoginPage && !isAuthenticated) {
+    response = NextResponse.redirect(new URL("/login", request.url));
+  } else if (isAuthenticated) {
     if (pathname.startsWith("/admin") && userRole !== "admin") {
-      return NextResponse.redirect(new URL("/employee", request.url));
+      response = NextResponse.redirect(new URL("/employee", request.url));
     }
 
     if (pathname.startsWith("/employee") && userRole !== "employee") {
-      return NextResponse.redirect(new URL("/admin", request.url));
+      response = NextResponse.redirect(new URL("/admin", request.url));
     }
 
     if (pathname === "/") {
-      return NextResponse.redirect(
+      response = NextResponse.redirect(
         new URL(userRole === "admin" ? "/admin" : "/employee", request.url),
       );
     }
   }
 
-  return NextResponse.next();
+  if (!request.cookies.has("accessToken") && accessToken && isAuthenticated) {
+    response.cookies.set("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 30 * 60,
+      path: "/",
+      sameSite: "lax",
+    });
+  }
+
+  return response;
 }
 
 export const config = {
