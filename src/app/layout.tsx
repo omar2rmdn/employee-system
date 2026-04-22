@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Nunito } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 
-const nunito = Nunito({
+const outfit = Outfit({
   subsets: ["latin"],
 });
 
@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`h-full`}>
       <body
-        className={`${nunito.className} antialiased min-h-full flex flex-col`}
+        className={`${outfit.className} antialiased min-h-full flex flex-col`}
       >
         {children}
       </body>
