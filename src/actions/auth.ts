@@ -76,6 +76,25 @@ export async function logoutUser() {
   const cookieStore = await cookies();
   cookieStore.delete("accessToken");
   cookieStore.delete("refreshToken");
-  
+
   redirect("/login");
+}
+
+export async function getCurrentUser() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("accessToken")?.value;
+
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as { userId: string, role: string };
+    await connectDB();
+    const user = await User.findById(decoded.userId).select("name role").lean();
+    return user;
+  } catch (error) {
+    console.error("Error getting current user:", error);
+    return null;
+  }
 }
