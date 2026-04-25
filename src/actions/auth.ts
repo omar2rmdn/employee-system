@@ -27,6 +27,18 @@ export async function loginUser(_prevState: unknown, formData: FormData) {
       return { error: "Invalid email or password." };
     }
 
+    if (user.isDeleted) {
+      return { error: "Invalid email or password." };
+    }
+
+    if (user.employmentStatus === "TERMINATED") {
+      return { error: "Account has been terminated." };
+    }
+
+    if (user.employmentStatus === "INACTIVE") {
+      return { error: "Account is inactive. Please contact HR." };
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return { error: "Invalid email or password." };
@@ -69,7 +81,7 @@ export async function loginUser(_prevState: unknown, formData: FormData) {
     return { error: "Something went wrong. Please try again." };
   }
 
-  redirect(userRole === "admin" ? "/admin" : "/employee");
+  redirect(userRole === "ADMIN" ? "/admin" : "/employee");
 }
 
 export async function logoutUser() {
@@ -91,7 +103,12 @@ export async function getCurrentUser() {
   try {
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as { userId: string, role: string };
     await connectDB();
-    const user = await User.findById(decoded.userId).select("name role").lean();
+    const user = await User.findById(decoded.userId).lean();
+    
+    if (!user || user.isDeleted || user.employmentStatus !== "ACTIVE") {
+      return null;
+    }
+    
     return user;
   } catch (error) {
     console.error("Error getting current user:", error);

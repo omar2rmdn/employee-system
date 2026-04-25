@@ -1,11 +1,12 @@
 import { logoutUser, getCurrentUser } from "@/actions/auth";
 import { SideLink } from "./side-link";
-import { UserIcon, CircleUser } from "lucide-react";
+import { UserIcon, LucideIcon } from "lucide-react";
 
 interface Props {
   links: {
     href: string;
     label: string;
+    icon: LucideIcon;
   }[];
 }
 
@@ -33,11 +34,11 @@ export async function Sidebar({ links }: Props) {
       {user && (
         <div className="m-4 bg-blue-900/50 border border-white/10 rounded-lg p-3 flex items-center gap-3">
           <p className="bg-indigo-800 px-5 py-3 rounded-lg text-lg">
-            {user.name[0].toUpperCase()}
+            {user.firstName[0].toUpperCase()}
           </p>
           <div>
             <p className="text-sm font-semibold text-white line-clamp-1">
-              {user.name}
+              {user.firstName} {user.lastName}
             </p>
             <p className="text-xs text-blue-300 capitalize">{user.role}</p>
           </div>
@@ -49,9 +50,17 @@ export async function Sidebar({ links }: Props) {
         <h1 className="text-blue-300/50 text-sm font-medium mb-3 px-2">
           Navigation
         </h1>
-        {links.map((link) => (
-          <SideLink key={link.href} {...link} />
-        ))}
+        {links.map((link) => {
+          const Icon = link.icon;
+          return (
+            <SideLink
+              key={link.href}
+              href={link.href}
+              label={link.label}
+              icon={<Icon className="w-5 h-5" />}
+            />
+          );
+        })}
       </nav>
 
       {/* Logout */}

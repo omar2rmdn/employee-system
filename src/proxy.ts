@@ -60,22 +60,22 @@ export async function proxy(request: NextRequest) {
 
   if (isLoginPage && isAuthenticated) {
     response = NextResponse.redirect(
-      new URL(userRole === "admin" ? "/admin" : "/employee", request.url),
+      new URL(userRole === "ADMIN" ? "/admin" : "/employee", request.url),
     );
   } else if (!isLoginPage && !isAuthenticated) {
     response = NextResponse.redirect(new URL("/login", request.url));
   } else if (isAuthenticated) {
-    if (pathname.startsWith("/admin") && userRole !== "admin") {
+    if (pathname.startsWith("/admin") && userRole !== "ADMIN") {
       response = NextResponse.redirect(new URL("/employee", request.url));
     }
 
-    if (pathname.startsWith("/employee") && userRole !== "employee") {
+    if (pathname.startsWith("/employee") && userRole !== "EMPLOYEE") {
       response = NextResponse.redirect(new URL("/admin", request.url));
     }
 
     if (pathname === "/") {
       response = NextResponse.redirect(
-        new URL(userRole === "admin" ? "/admin" : "/employee", request.url),
+        new URL(userRole === "ADMIN" ? "/admin" : "/employee", request.url),
       );
     }
   }

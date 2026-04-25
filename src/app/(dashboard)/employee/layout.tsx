@@ -1,4 +1,5 @@
-// import { Sidebar } from "@/components";
+import { Sidebar } from "@/components/sidebar";
+import { employeeLinks } from "@/constants";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -12,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <div className="flex h-screen">
-      {/* <Sidebar /> */}
+      <Sidebar links={employeeLinks} />
       <main className="flex-1 overflow-y-auto p-4 pt-16 sm:p-6 sm:pt-6 lg:p-8 max-w-400 mx-auto">
         {children}
       </main>

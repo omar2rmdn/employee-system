@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ReactNode } from "react";
 
 interface Props {
   href: string;
   label: string;
+  icon: ReactNode;
 }
 
-export function SideLink({ href, label }: Props) {
+export function SideLink({ href, label, icon }: Props) {
   const pathname = usePathname();
   const isActive = pathname === href;
 
@@ -21,11 +23,7 @@ export function SideLink({ href, label }: Props) {
           : "text-indigo-200 hover:bg-indigo-900 hover:text-white"
       }`}
     >
-      <span
-        className={`h-2 w-2 rounded-full transition-colors ${
-          isActive ? "bg-white" : "bg-transparent"
-        }`}
-      />
+      {icon}
       {label}
     </Link>
   );
