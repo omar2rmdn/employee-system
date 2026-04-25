@@ -3,6 +3,9 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { IUser } from "@/models/user";
 import { ChevronDown, Search } from "lucide-react";
+import { AddEmployeeModal } from "../modals/add-employee";
+import { EditEmployeeModal } from "../modals/edit-employee";
+import { DeleteEmployeeModal } from "../modals/delete-employee";
 
 interface Props {
   employees: IUser[];
@@ -13,6 +16,11 @@ export default function EmployeeList({ employees }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<IUser | null>(null);
 
   const departments = useMemo(() => {
     const deps = new Set(employees.map((e) => e.department).filter(Boolean));
@@ -94,7 +102,10 @@ export default function EmployeeList({ employees }: Props) {
               </div>
             )}
           </div>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-5 rounded-lg transition-colors font-medium shadow-sm">
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-5 rounded-lg transition-colors font-medium shadow-sm"
+          >
             Add Employee
           </button>
         </div>
@@ -148,10 +159,22 @@ export default function EmployeeList({ employees }: Props) {
                     </span>
                   </td>
                   <td className="py-3 px-6 text-center">
-                    <button className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors mr-3">
+                    <button
+                      onClick={() => {
+                        setSelectedEmployee(employee);
+                        setIsEditModalOpen(true);
+                      }}
+                      className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors mr-3"
+                    >
                       Edit
                     </button>
-                    <button className="text-red-500 hover:text-red-700 font-medium text-sm transition-colors">
+                    <button
+                      onClick={() => {
+                        setSelectedEmployee(employee);
+                        setIsDeleteModalOpen(true);
+                      }}
+                      className="text-red-500 hover:text-red-700 font-medium text-sm transition-colors"
+                    >
                       Delete
                     </button>
                   </td>
@@ -161,6 +184,23 @@ export default function EmployeeList({ employees }: Props) {
           </tbody>
         </table>
       </div>
+
+      <AddEmployeeModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+      />
+
+      <EditEmployeeModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        employee={selectedEmployee}
+      />
+
+      <DeleteEmployeeModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        employee={selectedEmployee}
+      />
     </div>
   );
 }

@@ -1,6 +1,11 @@
+import { Metadata } from "next";
 import EmployeeList from "@/components/lists/employee-list";
 import { connectDB } from "@/lib/db";
 import { IUser, User } from "@/models/user";
+
+export const metadata: Metadata = {
+  title: "Employees",
+};
 
 export default async function Employees() {
   await connectDB();

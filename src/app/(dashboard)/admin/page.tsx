@@ -1,5 +1,10 @@
+import { Metadata } from "next";
 import { Users, Building, CheckCircle2, FileText } from "lucide-react";
 import { dummyAdminDashboardData } from "@/constants/assets";
+
+export const metadata: Metadata = {
+  title: "Overview",
+};
 
 export default function Home() {
   return (

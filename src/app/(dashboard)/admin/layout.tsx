@@ -3,7 +3,15 @@ import { adminLinks } from "@/constants";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Dashboard",
+  title: {
+    template: "%s | Admin Dashboard",
+    default: "Admin Dashboard",
+  },
+  description: "Comprehensive management dashboard for administrators to oversee operations, manage users, and monitor system metrics.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function RootLayout({
