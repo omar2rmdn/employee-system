@@ -3,14 +3,21 @@
 import { useActionState, useEffect } from "react";
 import { IUser } from "@/models/user";
 import { editEmployee } from "@/actions/employee";
+import { DepartmentSelect } from "../inputs/department-select";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   employee: IUser | null;
+  departments: string[];
 }
 
-export function EditEmployeeModal({ isOpen, onClose, employee }: Props) {
+export function EditEmployeeModal({
+  isOpen,
+  onClose,
+  employee,
+  departments,
+}: Props) {
   const [state, formAction, isPending] = useActionState(
     editEmployee,
     undefined,
@@ -88,11 +95,10 @@ export function EditEmployeeModal({ isOpen, onClose, employee }: Props) {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Department
               </label>
-              <input
-                type="text"
-                name="department"
+              <DepartmentSelect
+                key={employee._id.toString()}
+                departments={departments}
                 defaultValue={employee.department}
-                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 disabled={isPending}
               />
             </div>

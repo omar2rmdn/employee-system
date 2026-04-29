@@ -4,6 +4,7 @@ import { User } from "@/models/user";
 import { connectDB } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcrypt";
+import { Department } from "@/models/department";
 
 export async function addEmployee(prevState: unknown, formData: FormData) {
   try {
@@ -23,9 +24,22 @@ export async function addEmployee(prevState: unknown, formData: FormData) {
       return { error: "Please fill all required fields." };
     }
 
+    if (!department) {
+      return { error: "Please select a department." };
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return { error: "User with this email already exists." };
+    }
+
+    const existingDepartment = await Department.findOne({
+      name: department,
+      isActive: true,
+    });
+
+    if (!existingDepartment) {
+      return { error: "Selected department does not exist." };
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -34,7 +48,7 @@ export async function addEmployee(prevState: unknown, formData: FormData) {
       firstName,
       lastName,
       email,
-      department: department || "General",
+      department,
       position: position || "Employee",
       phone: phone || "",
       basicSalary: basicSalary || 0,
@@ -74,6 +88,17 @@ export async function editEmployee(prevState: unknown, formData: FormData) {
     const user = await User.findById(id);
     if (!user) {
       return { error: "Employee not found." };
+    }
+
+    if (department) {
+      const existingDepartment = await Department.findOne({
+        name: department,
+        isActive: true,
+      });
+
+      if (!existingDepartment) {
+        return { error: "Selected department does not exist." };
+      }
     }
 
     if (email && email !== user.email) {

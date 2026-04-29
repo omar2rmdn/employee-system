@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import EmployeeList from "@/components/lists/employee-list";
 import { connectDB } from "@/lib/db";
 import { IUser, User } from "@/models/user";
+import { Department, IDepartment } from "@/models/department";
 
 export const metadata: Metadata = {
   title: "Employees",
@@ -17,6 +18,12 @@ export default async function Employees() {
     .select("-password -refreshToken")
     .lean();
 
+  const departments: IDepartment[] = await Department.find({
+    isActive: true,
+  })
+    .sort({ name: 1 })
+    .lean();
+
   return (
     <div className="p-6 max-w-7xl mx-auto w-full">
       <div className="flex justify-between items-center mb-6">
@@ -25,7 +32,10 @@ export default async function Employees() {
         </h1>
       </div>
 
-      <EmployeeList employees={JSON.parse(JSON.stringify(employees))} />
+      <EmployeeList
+        employees={JSON.parse(JSON.stringify(employees))}
+        departments={JSON.parse(JSON.stringify(departments))}
+      />
     </div>
   );
 }

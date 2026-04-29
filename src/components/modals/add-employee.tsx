@@ -2,13 +2,15 @@
 
 import { useActionState, useEffect } from "react";
 import { addEmployee } from "@/actions/employee";
+import { DepartmentSelect } from "../inputs/department-select";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  departments: string[];
 }
 
-export function AddEmployeeModal({ isOpen, onClose }: Props) {
+export function AddEmployeeModal({ isOpen, onClose, departments }: Props) {
   const [state, formAction, isPending] = useActionState(addEmployee, undefined);
 
   useEffect(() => {
@@ -91,12 +93,7 @@ export function AddEmployeeModal({ isOpen, onClose }: Props) {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Department
               </label>
-              <input
-                type="text"
-                name="department"
-                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                disabled={isPending}
-              />
+              <DepartmentSelect departments={departments} disabled={isPending} />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">

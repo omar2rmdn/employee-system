@@ -9,9 +9,13 @@ import { DeleteEmployeeModal } from "../modals/delete-employee";
 
 interface Props {
   employees: IUser[];
+  departments: Array<{
+    _id: string;
+    name: string;
+  }>;
 }
 
-export default function EmployeeList({ employees }: Props) {
+export default function EmployeeList({ employees, departments }: Props) {
   const [departmentFilter, setDepartmentFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -22,19 +26,29 @@ export default function EmployeeList({ employees }: Props) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<IUser | null>(null);
 
-  const departments = useMemo(() => {
-    const deps = new Set(employees.map((e) => e.department).filter(Boolean));
-    return ["All", ...Array.from(deps)];
-  }, [employees]);
+  const departmentFilters = useMemo(() => {
+    return ["All", ...departments.map((department) => department.name)];
+  }, [departments]);
+
+  const departmentOptions = useMemo(() => {
+    return departments.map((department) => department.name);
+  }, [departments]);
 
   const filteredEmployees = useMemo(() => {
     return employees.filter((e) => {
       const matchesDepartment =
         departmentFilter === "All" || e.department === departmentFilter;
+      const normalizedQuery = searchQuery.trim().toLowerCase();
+      const fullName = `${e.firstName} ${e.lastName}`.toLowerCase();
+      const matchesSearch =
+        !normalizedQuery ||
+        fullName.includes(normalizedQuery) ||
+        e.email.toLowerCase().includes(normalizedQuery) ||
+        e.position.toLowerCase().includes(normalizedQuery);
 
-      return matchesDepartment;
+      return matchesDepartment && matchesSearch;
     });
-  }, [employees, departmentFilter]);
+  }, [employees, departmentFilter, searchQuery]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -83,7 +97,7 @@ export default function EmployeeList({ employees }: Props) {
 
             {isDropdownOpen && (
               <div className="absolute z-10 w-full mt-1.5 bg-white border border-gray-200 rounded-lg shadow-lg py-1 overflow-hidden">
-                {departments.map((dep) => (
+                {departmentFilters.map((dep) => (
                   <button
                     key={dep}
                     onClick={() => {
@@ -188,12 +202,14 @@ export default function EmployeeList({ employees }: Props) {
       <AddEmployeeModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
+        departments={departmentOptions}
       />
 
       <EditEmployeeModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         employee={selectedEmployee}
+        departments={departmentOptions}
       />
 
       <DeleteEmployeeModal
