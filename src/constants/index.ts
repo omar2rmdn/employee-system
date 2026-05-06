@@ -4,7 +4,6 @@ import {
   CalendarDays,
   FileText,
   DollarSign,
-  Settings,
   Building2,
 } from "lucide-react";
 
