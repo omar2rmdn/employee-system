@@ -4,6 +4,14 @@ import { useActionState, useEffect } from "react";
 import { addEmployee } from "@/actions/employee";
 import { DepartmentSelect } from "../inputs/department-select";
 
+const POSITION_OPTIONS = [
+  "Employee",
+  "Associate Business Support",
+  "Software Developer",
+  "Senior Software Developer",
+  "Software Engineer",
+];
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -23,7 +31,7 @@ export function AddEmployeeModal({ isOpen, onClose, departments }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 m-4 max-h-[90vh] overflow-y-auto">
+      <div className="m-4 max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-xl bg-white p-6 shadow-lg">
         <h2 className="text-xl font-semibold mb-4 text-gray-800">
           Add Employee
         </h2>
@@ -35,7 +43,7 @@ export function AddEmployeeModal({ isOpen, onClose, departments }: Props) {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 First Name *
@@ -88,7 +96,7 @@ export function AddEmployeeModal({ isOpen, onClose, departments }: Props) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-4 md:grid-cols-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Department
@@ -99,16 +107,36 @@ export function AddEmployeeModal({ isOpen, onClose, departments }: Props) {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Position
               </label>
-              <input
-                type="text"
+              <select
                 name="position"
-                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                defaultValue="Employee"
+                className="w-full rounded border border-gray-300 bg-white p-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 disabled={isPending}
-              />
+              >
+                {POSITION_OPTIONS.map((position) => (
+                  <option key={position} value={position}>
+                    {position}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Status
+              </label>
+              <select
+                name="employmentStatus"
+                className="w-full rounded border border-gray-300 bg-white p-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                disabled={isPending}
+              >
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+                <option value="ON_LEAVE">On Leave</option>
+              </select>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-4 md:grid-cols-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Phone
@@ -127,25 +155,41 @@ export function AddEmployeeModal({ isOpen, onClose, departments }: Props) {
               <input
                 type="number"
                 name="basicSalary"
+                defaultValue={0}
+                min={0}
+                step="0.01"
                 className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 disabled={isPending}
               />
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <select
-              name="employmentStatus"
-              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
-              disabled={isPending}
-            >
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-              <option value="ON_LEAVE">On Leave</option>
-            </select>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Allowances
+              </label>
+              <input
+                type="number"
+                name="allowances"
+                defaultValue={0}
+                min={0}
+                step="0.01"
+                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                disabled={isPending}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Deductions
+              </label>
+              <input
+                type="number"
+                name="deductions"
+                defaultValue={0}
+                min={0}
+                step="0.01"
+                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                disabled={isPending}
+              />
+            </div>
           </div>
 
           <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">

@@ -1,68 +1,83 @@
-import { Calendar, FileText, DollarSign, ArrowRight } from "lucide-react";
-import { dummyEmployeeDashboardData } from "@/constants/assets";
+import { redirect } from "next/navigation";
+import { Calendar, ClipboardList, FileText } from "lucide-react";
+import { getCurrentUser } from "@/actions/auth";
+import { EmployeeHomeActions } from "@/components/employee/employee-home-actions";
+import { connectDB } from "@/lib/db";
+import { Attendance } from "@/models/attendance";
+import { Leave } from "@/models/leave";
 
-export default function Home() {
-  const { employee, currentMonthAttendance, pendingLeaves, latestPayslip } = dummyEmployeeDashboardData;
+function startOfMonth() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 1);
+}
+
+export default async function Home() {
+  const employee = await getCurrentUser();
+
+  if (!employee) {
+    redirect("/login");
+  }
+
+  await connectDB();
+
+  const [currentMonthAttendance, pendingLeaves, attendanceHistoryCount] =
+    await Promise.all([
+      Attendance.countDocuments({
+        employee: employee._id,
+        status: "PRESENT",
+        date: { $gte: startOfMonth() },
+      }),
+      Leave.countDocuments({
+        employee: employee._id,
+        status: "PENDING",
+      }),
+      Attendance.countDocuments({
+        employee: employee._id,
+      }),
+    ]);
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Welcome, {employee.firstName}!</h1>
-        <p className="text-gray-500 mt-1 font-medium">
+        <p className="mt-1 font-medium text-gray-500">
           {employee.position} - {employee.department}
         </p>
       </div>
 
-      {/* Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Card 1 */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm border-l-4 border-l-slate-400 p-6 flex justify-between items-center">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="flex items-center justify-between rounded-xl border border-gray-100 border-l-4 border-l-slate-400 bg-white p-6 shadow-sm">
           <div>
             <p className="text-sm font-semibold text-gray-600">Days Present</p>
-            <p className="text-3xl font-bold text-gray-900 mt-2">{currentMonthAttendance}</p>
+            <p className="mt-2 text-3xl font-bold text-gray-900">{currentMonthAttendance}</p>
           </div>
-          <div className="bg-slate-100 p-2.5 rounded-lg">
-            <Calendar className="w-5 h-5 text-slate-600" />
-          </div>
-        </div>
-
-        {/* Card 2 */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm border-l-4 border-l-slate-400 p-6 flex justify-between items-center">
-          <div>
-            <p className="text-sm font-semibold text-gray-600">
-              Pending Leaves
-            </p>
-            <p className="text-3xl font-bold text-gray-900 mt-2">{pendingLeaves}</p>
-          </div>
-          <div className="bg-slate-100 p-2.5 rounded-lg">
-            <FileText className="w-5 h-5 text-slate-600" />
+          <div className="rounded-lg bg-slate-100 p-2.5">
+            <Calendar className="h-5 w-5 text-slate-600" />
           </div>
         </div>
 
-        {/* Card 3 */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm border-l-4 border-l-slate-400 p-6 flex justify-between items-center">
+        <div className="flex items-center justify-between rounded-xl border border-gray-100 border-l-4 border-l-slate-400 bg-white p-6 shadow-sm">
           <div>
-            <p className="text-sm font-semibold text-gray-600">
-              Latest Payslip
-            </p>
-            <p className="text-3xl font-bold text-gray-900 mt-2">${latestPayslip.netSalary.toLocaleString()}</p>
+            <p className="text-sm font-semibold text-gray-600">Pending Leaves</p>
+            <p className="mt-2 text-3xl font-bold text-gray-900">{pendingLeaves}</p>
           </div>
-          <div className="bg-slate-100 p-2.5 rounded-lg">
-            <DollarSign className="w-5 h-5 text-slate-600" />
+          <div className="rounded-lg bg-slate-100 p-2.5">
+            <FileText className="h-5 w-5 text-slate-600" />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between rounded-xl border border-gray-100 border-l-4 border-l-slate-400 bg-white p-6 shadow-sm">
+          <div>
+            <p className="text-sm font-semibold text-gray-600">Attendance Records</p>
+            <p className="mt-2 text-3xl font-bold text-gray-900">{attendanceHistoryCount}</p>
+          </div>
+          <div className="rounded-lg bg-slate-100 p-2.5">
+            <ClipboardList className="h-5 w-5 text-slate-600" />
           </div>
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-wrap gap-4">
-        <button className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#4f46e5] hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors shadow-sm">
-          Mark Attendance <ArrowRight className="w-4 h-4" />
-        </button>
-        <button className="inline-flex items-center justify-center px-5 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg font-medium transition-colors shadow-sm">
-          Apply for Leave
-        </button>
-      </div>
+      <EmployeeHomeActions />
     </div>
   );
 }

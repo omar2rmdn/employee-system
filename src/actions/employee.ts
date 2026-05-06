@@ -17,6 +17,8 @@ export async function addEmployee(prevState: unknown, formData: FormData) {
     const position = formData.get("position") as string;
     const phone = formData.get("phone") as string;
     const basicSalary = Number(formData.get("basicSalary"));
+    const allowances = Number(formData.get("allowances"));
+    const deductions = Number(formData.get("deductions"));
     const employmentStatus = formData.get("employmentStatus") as string;
     const password = formData.get("password") as string;
 
@@ -52,6 +54,8 @@ export async function addEmployee(prevState: unknown, formData: FormData) {
       position: position || "Employee",
       phone: phone || "",
       basicSalary: basicSalary || 0,
+      allowances: allowances || 0,
+      deductions: deductions || 0,
       employmentStatus: employmentStatus || "ACTIVE",
       password: hashedPassword,
       role: "EMPLOYEE",
