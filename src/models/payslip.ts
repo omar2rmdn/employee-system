@@ -30,7 +30,6 @@ const payslipSchema = new Schema<IPayslip>(
     },
     basicSalary: {
       type: Number,
-      type: Number,
       required: true,
       default: 0,
     },
