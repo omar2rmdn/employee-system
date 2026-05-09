@@ -51,8 +51,6 @@ const payslipSchema = new Schema<IPayslip>(
 
 payslipSchema.index({ employee: 1, month: 1, year: 1 }, { unique: true });
 
-const PayslipModel =
-  (mongoose.models.Payslip as Model<IPayslip>) ||
-  mongoose.model<IPayslip>("Payslip", payslipSchema);
+const Payslip = mongoose.model("Payslip", payslipSchema);
 
-export { PayslipModel as Payslip };
+export { Payslip };

@@ -1,15 +1,12 @@
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
 
-export type AttendanceDayType = "" | "FULL" | "HALF";
-export type AttendanceStatus = "PRESENT" | "ABSENT";
-
 export interface IAttendance extends Document {
   employee: Types.ObjectId;
   date: Date;
   checkIn: string;
   checkOut: string;
-  dayType: AttendanceDayType;
-  status: AttendanceStatus;
+  dayType: "" | "FULL" | "HALF";
+  status: "PRESENT" | "ABSENT";
 }
 
 const attendanceSchema = new Schema<IAttendance>(
@@ -53,8 +50,6 @@ const attendanceSchema = new Schema<IAttendance>(
 
 attendanceSchema.index({ employee: 1, date: 1 }, { unique: true });
 
-const AttendanceModel =
-  (mongoose.models.Attendance as Model<IAttendance>) ||
-  mongoose.model<IAttendance>("Attendance", attendanceSchema);
+const Attendance = mongoose.model("Attendance", attendanceSchema);
 
-export { AttendanceModel as Attendance };
+export { Attendance };

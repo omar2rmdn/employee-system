@@ -1,12 +1,10 @@
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
 
-export type LeaveStatus = "PENDING" | "APPROVED" | "REJECTED";
-
 export interface ILeave extends Document {
   employee: Types.ObjectId;
   requestDate: Date;
   reason: string;
-  status: LeaveStatus;
+  status: "PENDING" | "APPROVED" | "REJECTED";
   approvedBy?: Types.ObjectId | null;
 }
 
@@ -44,8 +42,6 @@ const leaveSchema = new Schema<ILeave>(
   },
 );
 
-const LeaveModel =
-  (mongoose.models.Leave as Model<ILeave>) ||
-  mongoose.model<ILeave>("Leave", leaveSchema);
+const Leave = mongoose.model("Leave", leaveSchema);
 
-export { LeaveModel as Leave };
+export { Leave };
