@@ -37,7 +37,10 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Screenshots
 
+### Login
 ![1](./EMS%20Images/1.png)
+
+### Admin Pages
 ![2](./EMS%20Images/2.png)
 ![3](./EMS%20Images/3.png)
 ![4](./EMS%20Images/4.png)
@@ -48,6 +51,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ![9](./EMS%20Images/9.png)
 ![10](./EMS%20Images/10.png)
 ![11](./EMS%20Images/11.png)
+
+### Employee Pages
 ![12](./EMS%20Images/12.png)
 ![13](./EMS%20Images/13.png)
 ![14](./EMS%20Images/14.png)
